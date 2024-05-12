@@ -1,4 +1,4 @@
-###Filtering the human RNA-binding site dataset provided by POSTAR3 to exclusively contain DDX6 binding sites###
+###Filtering the human RNA-binding site dataset provided by POSTAR3 to exclusively obtain DDX6 binding sites###
 
 import sqlite3
 import pandas as pd

@@ -56,20 +56,27 @@ print(len(overlapping_intervals.index))
 
 def get_additional_columns(row):
     coords = (row['chrom'], row['start'], row['end'])
-    print("Intermediate value of coords:", coords) #print the coordinates
     matching_row = DDX6_coords[
         (DDX6_coords['chrom'] == coords[0]) &
         (DDX6_coords['start'] == coords[1]) &
         (DDX6_coords['end'] == coords[2])
     ]
     if not matching_row.empty:
-        additional_values = matching_row[['strand', 'confidence_score', 'sample_or_tissue_used']].values[0]
-        print("Intermediate value of additional_values:", additional_values) #print the extracted values
+        strand = matching_row['strand'].values[0]
+        confidence_score = matching_row['confidence_score'].values[0]
+        sample_or_tissue_used = matching_row['sample_or_tissue_used'].values[0]
+        additional_values = {
+            'strand': strand,
+            'confidence_score': confidence_score,
+            'sample_or_tissue_used': sample_or_tissue_used
+        }
         return additional_values
     else:
         return None
 
 # Apply get_additional_columns to overlapping_intervals
-overlapping_intervals['additional_info'] = overlapping_intervals.apply(get_additional_columns, axis=1)
+additional_values_df = overlapping_intervals.apply(get_additional_columns, axis=1)
+overlapping_intervals[['strand', 'confidence_score', 'sample_or_tissue_used']] = additional_values_df.apply(pd.Series)
 print(overlapping_intervals.head())
 
+#it works! Now need to figure out how to get gene/transcript names from the coordinates

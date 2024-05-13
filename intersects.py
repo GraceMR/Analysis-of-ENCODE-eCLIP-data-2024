@@ -1,6 +1,9 @@
 ###Producing a list of DDX6 binding sites in 3'UTRs across the genome###
 #Need to compare DDX6 list of binding coordinates with list of 3UTR coordinates. Ensure both starting lists are in the same format.
 import pandas as pd
+import bioframe as bf
+from Ensembl_converter import EnsemblConverter
+from tqdm import tqdm
 
 UTR_coords = pd.read_csv('3UTR.csv', header = None, sep = '\t')
 #Now give columns names. First three columns comprise coords- give same header names as for DDX6 binding site table.
@@ -30,8 +33,6 @@ print(UTR_coords_subset.head())
 print(len(UTR_coords_subset.index))
 print(DDX6_coords_subset.head())
 print(len(DDX6_coords_subset.index))
-
-import bioframe as bf
 
 overlapping_intervals = bf.overlap(UTR_coords_subset, DDX6_coords_subset, how='inner', suffixes=('_1','_2'))
 overlapping_intervals = overlapping_intervals.copy()
@@ -112,4 +113,13 @@ ensembl_values_df = UTR_overlapping_intervals.apply(get_ENSEMBL_ID, axis=1)
 UTR_overlapping_intervals['ENSEMBL_ID'] = ensembl_values_df.apply(pd.Series)
 print(UTR_overlapping_intervals.head())
 
-#The above works. Now need to append 'ENSEMBL_ID' column to DDX6_overlapping_intervals
+#The above works. Now need to create an additional column of gene symbols
+
+for i in tqdm(range(100), desc="Loading..."):
+    converter = EnsemblConverter()
+    gene_symbols = converter.convert_ids(UTR_overlapping_intervals['ENSEMBL_ID'])
+    UTR_overlapping_intervals['GENE_SYMBOL'] = gene_symbols
+    print(UTR_overlapping_intervals.head())
+    pass
+
+#The above is taking way too long. May need to split UTR_overlapping_intervals into chunks to process it more quickly.

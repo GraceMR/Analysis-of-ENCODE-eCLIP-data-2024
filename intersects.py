@@ -18,27 +18,47 @@ print(DDX6_coords_subset.head())
 
 #ADDITIONAL PRE-PROCESSING
 #need to order coords in both dframes in ascending order
+UTR_coords_subset = UTR_coords_subset.copy()
+DDX6_coords_subset = DDX6_coords_subset.copy()
 UTR_coords_subset.sort_values(by='start', ascending=True, inplace=True)
 DDX6_coords_subset.sort_values(by='start', ascending=True, inplace=True)
 print(UTR_coords_subset.head())
 print(DDX6_coords_subset.head())
 
 import bioframe as bf
+
 overlapping_intervals = bf.overlap(UTR_coords_subset, DDX6_coords_subset, how='inner', suffixes=('_1','_2'))
+overlapping_intervals = overlapping_intervals.copy()
+overlapping_intervals.sort_values(by='start_1', ascending=True, inplace=True)
 print(overlapping_intervals.head())
 #_1 = UTR coords; _2 = DDX6_coords. Should only return coords in both dframes where there is overlap.
+#Contents of overlapping_intervals seems consistent. However, it looks like the row number changes every time. Not sure what this means.
 
 #Now need to append additional important info to the overlapping_intervals dframe, including 'sample_or_tissue_used',
 #'confidence_score', 'strand' (dependent on _2 values); and gene name.
 #May be easiest to create a custom function for this.
 
 def get_additional_columns(row):
-    coords = row[['chrom', 'start', 'end']]
-    matching_row = DDX6_coords_subset[DDX6_coords_subset[['chrom', 'start', 'end']] == coords]
+    coords = (row['chrom'], row['start'], row['end'])
+    matching_row = DDX6_coords[
+        (DDX6_coords['chrom'] == coords[0]) &
+        (DDX6_coords['start'] == coords[1]) &
+        (DDX6_coords['end'] == coords[2])
+    ]
     if not matching_row.empty:
         return matching_row[['strand', 'confidence_score', 'sample_or_tissue_used']].values[0]
     else:
         return None
 
-# Apply the custom function to each row in dframeB
-#overlapping_intervals[['strand', 'confidence_score', 'sample_or_tissue_used']] = overlapping_intervals.apply(get_additional_columns, axis=1)
+#May need to drop first three columns from overlapping_intervals for the function to work; the first three
+#columns correspond to 3'UTR coordinates from across the genome. We will put this data in a separate dframe
+#perhaps in the hopes that we can use it to get gene/transcript names for our binding sites.
+overlapping_intervals.drop(columns=['chrom_1', 'start_1', 'end_1'], inplace = True)
+#try re-naming the columns
+overlapping_intervals.rename({'chrom_2': 'chrom', 'start_2': 'start', 'end_2': 'end'}, axis=1, inplace=True)
+print(overlapping_intervals.head())
+
+overlapping_intervals[['strand', 'confidence_score', 'sample_or_tissue_used']] = overlapping_intervals.apply(get_additional_columns, axis=1)
+print(overlapping_intervals.head())
+#right now the above doesn't work purely because the columns we're interested in no longer exist in DDX6_coords_subset as we dropped them.
+#need to refer to original dframe

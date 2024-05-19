@@ -2,14 +2,15 @@
 #Need to compare DDX6 list of binding coordinates with list of 3UTR coordinates. Ensure both starting lists are in the same format.
 import pandas as pd
 import bioframe as bf
+import numpy as np
 from Ensembl_converter import EnsemblConverter
 from tqdm import tqdm
 
 UTR_coords = pd.read_csv('3UTR.csv', header = None, sep = '\t')
 #Now give columns names. First three columns comprise coords- give same header names as for DDX6 binding site table.
 UTR_coords.columns = ["chrom", "start", "end", "identifier", "unknown", "strand"]
-#create a new identifier column with useful values (i.e. only the ENSEMBL transcript identifier)
-UTR_coords['ENSEMBL_ID'] = UTR_coords['identifier'].str.split('_').str[0]
+#create a new identifier column with useful values (i.e. only the GENCODE transcript identifier)
+UTR_coords['GENCODE_ID'] = UTR_coords['identifier'].str.split('_').str[0]
 print(UTR_coords.head())
 #We only want the first three columns.
 UTR_coords_subset = UTR_coords[["chrom", "start", "end"]]
@@ -96,7 +97,7 @@ print(DDX6_overlapping_intervals.head())
 #need to remove any value after '_' in the identifier- anything after this is superfluous- DONE
 #now need to make a new function that does the same as get_additional_columns, but with UTR_coords
 
-def get_ENSEMBL_ID (row):
+def get_GENCODE_ID (row):
     coords = (row['chrom'], row['start'], row['end'])
     matching_row = UTR_coords[
         (UTR_coords['chrom'] == coords[0]) &
@@ -104,22 +105,20 @@ def get_ENSEMBL_ID (row):
         (UTR_coords['end'] == coords[2])
     ]
     if not matching_row.empty:
-        ENSEMBL_ID = matching_row['ENSEMBL_ID'].values[0]
-        return ENSEMBL_ID
+        GENCODE_ID = matching_row['GENCODE_ID'].values[0]
+        return GENCODE_ID
     else:
         return None
 
-ensembl_values_df = UTR_overlapping_intervals.apply(get_ENSEMBL_ID, axis=1)
-UTR_overlapping_intervals['ENSEMBL_ID'] = ensembl_values_df.apply(pd.Series)
+gencode_values_df = UTR_overlapping_intervals.apply(get_GENCODE_ID, axis=1)
+UTR_overlapping_intervals['GENCODE_ID'] = gencode_values_df.apply(pd.Series)
 print(UTR_overlapping_intervals.head())
 
-#The above works. Now need to create an additional column of gene symbols
+####USING BIOMART TO CONVERT GENCODE/ENSEMBL IDS TO GENE NAMES
 
-for i in tqdm(range(100), desc="Loading..."):
-    converter = EnsemblConverter()
-    gene_symbols = converter.convert_ids(UTR_overlapping_intervals['ENSEMBL_ID'])
-    UTR_overlapping_intervals['GENE_SYMBOL'] = gene_symbols
-    print(UTR_overlapping_intervals.head())
-    pass
+converter = EnsemblConverter()
 
-#The above is taking way too long. May need to split UTR_overlapping_intervals into chunks to process it more quickly.
+for i in tqdm(range(100)):
+    result = converter.convert_ids(UTR_overlapping_intervals['GENCODE_ID'])
+
+print(result.head())

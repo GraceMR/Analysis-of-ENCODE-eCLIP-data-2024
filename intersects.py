@@ -112,8 +112,8 @@ def get_GENCODE_ID (row):
 gencode_values_df = UTR_overlapping_intervals.apply(get_GENCODE_ID, axis=1)
 UTR_overlapping_intervals['GENCODE_ID'] = gencode_values_df.apply(pd.Series)
 print(UTR_overlapping_intervals.head())
-DDX6_overlapping_intervals.to_csv('DDX6_overlapping_intervals.csv', index=True)
-UTR_overlapping_intervals.to_csv('UTR_overlapping_intervals.csv', index=True)
+#DDX6_overlapping_intervals.to_csv('DDX6_overlapping_intervals.csv', index=True)
+#UTR_overlapping_intervals.to_csv('UTR_overlapping_intervals.csv', index=True)
 
 ####USING BIOMART TO CONVERT GENCODE/ENSEMBL IDS TO GENE NAMES
 #Easiest to accomplish this in R using the Bioconductor package Biomart; used UTR_overlapping_intervals.

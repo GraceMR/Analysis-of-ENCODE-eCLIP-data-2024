@@ -3,8 +3,6 @@
 import pandas as pd
 import bioframe as bf
 import numpy as np
-from Ensembl_converter import EnsemblConverter
-from tqdm import tqdm
 
 UTR_coords = pd.read_csv('3UTR.csv', header = None, sep = '\t')
 #Now give columns names. First three columns comprise coords- give same header names as for DDX6 binding site table.
@@ -91,6 +89,7 @@ def get_additional_columns(row):
 additional_values_df = DDX6_overlapping_intervals.apply(get_additional_columns, axis=1)
 DDX6_overlapping_intervals[['strand', 'confidence_score', 'sample_or_tissue_used']] = additional_values_df.apply(pd.Series)
 print(DDX6_overlapping_intervals.head())
+print(len(DDX6_overlapping_intervals.index))
 
 #it works! Now need to figure out how to get gene/transcript names from the coordinates
 #The easiest way to do this might be to take the identifier value in the original UTR database.
@@ -113,12 +112,17 @@ def get_GENCODE_ID (row):
 gencode_values_df = UTR_overlapping_intervals.apply(get_GENCODE_ID, axis=1)
 UTR_overlapping_intervals['GENCODE_ID'] = gencode_values_df.apply(pd.Series)
 print(UTR_overlapping_intervals.head())
+DDX6_overlapping_intervals.to_csv('DDX6_overlapping_intervals.csv', index=True)
+UTR_overlapping_intervals.to_csv('UTR_overlapping_intervals.csv', index=True)
 
 ####USING BIOMART TO CONVERT GENCODE/ENSEMBL IDS TO GENE NAMES
+#Easiest to accomplish this in R using the Bioconductor package Biomart; used UTR_overlapping_intervals.
+#UTR_overlapping_intervals.to_csv('UTR_overlapping_intervals.csv', index=False)
+#Output of biomart_script.r = overlapping_intervals_gene_names
 
-converter = EnsemblConverter()
+####COMBINING GENE INFO WITH ORIGINAL POSTAR3 EXPERIMENTAL INFO####
+#need to merge overlapping_intervals_gene_names with DDX6_overlapping_intervals. This should possibly be done in a separate script.
+#Produce a .csv file of DDX6_overlapping_intervals
+#IMPORTANT- need to initally add 3'utr binding coordinates to DDX6_overlapping intervals; should be two sets of coordinates.
+#OR retain index number when exporting
 
-for i in tqdm(range(100)):
-    result = converter.convert_ids(UTR_overlapping_intervals['GENCODE_ID'])
-
-print(result.head())

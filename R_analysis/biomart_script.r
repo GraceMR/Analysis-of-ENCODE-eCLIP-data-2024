@@ -36,8 +36,7 @@ library(dplyr)
 df2 <- arrange(df2, start)
 df2$ensembl_gene_id <- as.factor(df2$ensembl_gene_id)
 df2 <- relocate(df2, ensembl_gene_id, .before = X)
-df3 <- subset(df2, select = -c(X) )
 
-#export df3 as .csv
+#export df2 as .csv
 
-write.csv(df3,"output/overlapping_intervals_gene_names.csv", row.names = FALSE)
+write.csv(df2,"output/overlapping_intervals_gene_names.csv", row.names = FALSE)

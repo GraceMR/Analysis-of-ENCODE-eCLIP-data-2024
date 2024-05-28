@@ -36,7 +36,7 @@ Refer to 'biomart_script.r'. Bioconductor is an R-based open source software tha
 Refer to 'final_script.py'. 'overlapping_intervals_gene_names.csv' and 'DDX6_overlapping_intervals.csv' were merged to produce 'DDX6_3UTR_binding_sites.csv'. This contains all experimental information relating to the DDX6 binding sites present in transcript 3'UTRs, and details relating to the genes in which these 3'UTRs are located.
 
 ### (5) Performing gene ontology enrichment analysis
-Refer to 'GO_analysis_script.r'. The clusterProfiler package in Bioconductor was used to perform GO enrichment analysis of the full list of genes with DDX6 binding sites in their 3'UTRs.
+Refer to 'GO_analysis_script.r'. The clusterProfiler package in Bioconductor was used to perform GO enrichment analysis of the full list of genes with DDX6 binding sites in their 3'UTRs. The enrichment analysis looks at the proportion of genes in your dataset associated with a given GO term, and compares this to the expected proportion of genes associated with this GO term across the genome. Such analyses were carried out separately for GO terms within the 'cellular component', 'biological process' and 'molecular function' categories. The top 20 significantly upregulated GO terms for each category can be seen below.
 
 [1] https://pubmed.ncbi.nlm.nih.gov/32252787/
 [2] https://academic.oup.com/nar/article/50/D1/D287/6353804?login=true

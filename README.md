@@ -25,7 +25,7 @@ out to identify the binding sites for most RBPs across the trancsriptome as part
 binding patterns of RBPs[2].
 
 ## Processing the data
-### (1) Extracting all data relating to DDX6 eCLIP experiments
+### (1) Extracting all experimental data relating to DDX6
 Refer to 'Filtering_RBP_coords.py'.
 
 ### (2) Filtering DDX6 binding site coordinates for those specifically within 3'UTRs

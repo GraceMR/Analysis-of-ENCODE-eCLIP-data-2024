@@ -20,13 +20,11 @@ short RNA sequences called microRNAs (miRNAs). miRNA sequences are often complem
 is relatively undefined, it is hypothesised to recognise specific secondary structures in RNA; therefore, it may contribute to target specificity in RISC function by binding to mRNA 3'UTRs with specific secondary structures.
 
 ### Using Publicly-Available DDX6 eCLIP Data to Infer Targets of RISC-Mediated Translational Repression Following Ago2 Phosphorylation
-We want to identify which mRNAs are likely to be targeted by RISC following Ago2 phosphorylation. One way in which this could be done is to identify targets for DDX6 binding. Fortunately, a series of enhanced crosslinking-immunoprecipitation experiments (eCLIP) experiments were carried
-out to identify the binding sites for most RBPs across the trancsriptome as part of the ENCODE project [1]. Another database called POSTAR3 was produced using these publicly-available data, alongside data from similar experiments unaffiliated with the ENCODE project, to generate a 'comprehensive map' detailing the 
-binding patterns of RBPs[2].
+We want to identify which mRNAs are likely to be targeted by RISC following Ago2 phosphorylation. One way in which this could be done is to identify targets for DDX6 binding. Fortunately, a series of enhanced crosslinking-immunoprecipitation experiments (eCLIP) experiments were carried out to identify the binding sites for most RBPs across the trancsriptome as part of the ENCODE project [1]. Another database called POSTAR3 was produced using these publicly-available data, alongside data from similar experiments unaffiliated with the ENCODE project, to generate a 'comprehensive map' detailing the binding patterns of RBPs[2].
 
 ## Processing the data
 ### (1) Extracting all experimental data relating to DDX6
-Refer to 'Filtering_RBP_coords.py'. http://111.198.139.65/RBP.html
+Refer to 'Filtering_RBP_coords.py'. All experimental data collated by the authors of POSTAR3 was downloaded from their website: http://111.198.139.65/RBP.html. Under 'Bulk Download Request', click 'Request data'. You can then download 'human.txt.gz', which contains binding site/experimental data pertaining to all human RBPs. This file is not provided in this repository, as it is too large. The sqlite3 python library was used to filer this database for experimental data exclusively relating to DDX6; this solely comprised of the eCLIP experiments in HepG2 and K562 cells carried out as part of the ENCODE project. Binding site coordinates (chrom; start; end); strand; experimental method; sample/tissue used; accession of raw data; and confidence score were identified. Output = 'DDX6_binding_coords.csv'.
 
 ### (2) Filtering DDX6 binding site coordinates for those specifically within 3'UTRs
 Refer to 'Intersects.py'.

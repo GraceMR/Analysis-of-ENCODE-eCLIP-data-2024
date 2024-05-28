@@ -24,13 +24,13 @@ We want to identify which mRNAs are likely to be targeted by RISC following Ago2
 
 ## Processing the data
 ### (1) Extracting all experimental data relating to DDX6
-Refer to 'Filtering_RBP_coords.py'. All experimental data collated by the authors of POSTAR3 was downloaded from their website: http://111.198.139.65/RBP.html. Under 'Bulk Download Request', click 'Request data'. You can then download 'human.txt.gz', which contains binding site/experimental data pertaining to all human RBPs. This file is not provided in this repository, as it is too large. The sqlite3 python library was used to filer this database for experimental data exclusively relating to DDX6; this solely comprised of the eCLIP experiments in HepG2 and K562 cells carried out as part of the ENCODE project. Binding site coordinates (chrom; start; end); strand; experimental method; sample/tissue used; accession of raw data; and confidence score were identified. Output = 'DDX6_binding_coords.csv'.
+Refer to 'Filtering_RBP_coords.py'. All experimental data collated by the authors of POSTAR3 relating to human RBPs was downloaded from their website: http://111.198.139.65/RBP.html. Under 'Bulk Download Request', click 'Request data'. You can then download 'human.txt.gz', which contains binding site/experimental data pertaining to all human RBPs. This file is not provided in this repository, as it is too large. The sqlite3 python library was used to filer this database for experimental data exclusively relating to DDX6; this solely comprised of the eCLIP experiments in HepG2 and K562 cells carried out as part of the ENCODE project. Binding site coordinates (chrom; start; end); strand; experimental method; sample/tissue used; accession of raw data; and confidence score were extracted for each experimentally-determined binding site. Output = 'DDX6_binding_coords.csv'.
 
 ### (2) Filtering DDX6 binding site coordinates for those specifically within 3'UTRs
-Refer to 'Intersects.py'.
+Refer to 'Intersects.py'. Initially downloaded full list of 3'UTR coordinates across the human transcriptome from the Genome Browser website (hg38), which contains: chrom, start, end, identifier (i.e. GENCODE ID), an unknown variable, and strand. The Bioframe library was used to identify overlapping intervals between the list of 3'UTR coordinates and the list of DDX6 binding site coordinates. This appeared to yield 3,201 DDX6 binding sites specific to transcript 3'UTRs. The 3,201 3'UTR coordinates and associated GENCODE IDs were exported ('UTR_overlapping_intervals.csv') for further processing in R to obtain gene-specific information.
 
 ### (3) Acquiring gene-specific information for transcripts with 3'UTR DDX6 binding sites
-Refer to 'biomart_script.r'.
+Refer to 'biomart_script.r'. Bioconductor 
 
 ### (4) Compiling gene-specific information and relevant experimental data
 Refer to 'final_script.py'.

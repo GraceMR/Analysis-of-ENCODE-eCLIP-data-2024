@@ -25,16 +25,16 @@ out to identify the binding sites for most RBPs across the trancsriptome as part
 binding patterns of RBPs[2].
 
 ## Processing the data
-### (1) Extracting all DDX6 binding sites
+### (1) Extracting all data relating to DDX6 eCLIP experiments
 Refer to 'Filtering_RBP_coords.py'.
 
-### (2) Filtering the above for DDX6 binding sites specifically within 3'UTRs
+### (2) Filtering DDX6 binding site coordinates for those specifically within 3'UTRs
 Refer to 'Intersects.py'.
 
-### (3) Acquiring gene-specific information for transcripts with 3'UTR binding sites
+### (3) Acquiring gene-specific information for transcripts with 3'UTR DDX6 binding sites
 Refer to 'biomart_script.r'.
 
-### (4) Compiling gene-specific information and relevant experimental data for 3'UTR binding sites
+### (4) Compiling gene-specific information and relevant experimental data
 Refer to 'final_script.py'.
 
 ### (5) Performing gene ontology enrichment analysis on list of genes with DDX6 binding sites in 3'UTRs

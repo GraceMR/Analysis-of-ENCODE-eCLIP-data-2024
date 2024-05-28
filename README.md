@@ -26,7 +26,7 @@ binding patterns of RBPs[2].
 
 ## Processing the data
 ### (1) Extracting all experimental data relating to DDX6
-Refer to 'Filtering_RBP_coords.py'.
+Refer to 'Filtering_RBP_coords.py'. http://111.198.139.65/RBP.html
 
 ### (2) Filtering DDX6 binding site coordinates for those specifically within 3'UTRs
 Refer to 'Intersects.py'.

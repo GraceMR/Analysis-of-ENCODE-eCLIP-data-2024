@@ -39,6 +39,7 @@ overlapping_intervals.sort_values(by='start_1', ascending=True, inplace=True)
 #print the length of one of the columns- make into numpy array
 print(overlapping_intervals.head())
 print(len(overlapping_intervals.index))
+#export this and check for Limk1 binding coordinates (control)- 74122298-74122353 and 74122308-74122367
 #_1 = UTR coords; _2 = DDX6_coords. Should only return coords in both dframes where there is overlap.
 #Contents of overlapping_intervals seems consistent. However, it looks like the row number changes every time. Not sure what this means.
 
@@ -51,7 +52,7 @@ print(len(overlapping_intervals.index))
 #data filtering.
 
 overlapping_intervals = overlapping_intervals.drop_duplicates(subset=['chrom_2', 'start_2', 'end_2'], keep=False)
-DDX6_overlapping_intervals = overlapping_intervals.filter(regex='_2')  
+DDX6_overlapping_intervals = overlapping_intervals.filter(regex='_2')
 UTR_overlapping_intervals = overlapping_intervals.filter(regex='_1')
 
 #try re-naming the columns
@@ -64,6 +65,7 @@ print(len(DDX6_overlapping_intervals.index))
 print(UTR_overlapping_intervals.head())
 print(len(UTR_overlapping_intervals.index))
 #done! Seems to be 3201 3'UTR binding sites
+#export this and look for Limk1 binding sites too- 74122298-74122353 and 74122308-74122367
 
 def get_additional_columns(row):
     coords = (row['chrom'], row['start'], row['end'])
@@ -125,4 +127,3 @@ print(UTR_overlapping_intervals.head())
 #Produce a .csv file of DDX6_overlapping_intervals
 #IMPORTANT- need to initally add 3'utr binding coordinates to DDX6_overlapping intervals; should be two sets of coordinates.
 #OR retain index number when exporting
-

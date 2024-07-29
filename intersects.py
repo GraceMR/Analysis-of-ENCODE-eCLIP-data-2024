@@ -17,6 +17,7 @@ print(UTR_coords_subset.head())
 
 #Now want the same info from the list of DDX6 binding sites.
 DDX6_coords = pd.read_csv('output/DDX6_binding_coords.csv', header = 'infer' , sep = ',')
+DDX6_coords.reset_index(drop=True, inplace=True)
 #Again, we only want the first three columns.
 DDX6_coords_subset = DDX6_coords[["chrom", "start", "end"]]
 print(DDX6_coords_subset.head())
@@ -27,7 +28,9 @@ print(DDX6_coords_subset.head())
 UTR_coords_subset = UTR_coords_subset.copy()
 DDX6_coords_subset = DDX6_coords_subset.copy()
 UTR_coords_subset.sort_values(by='start', ascending=True, inplace=True)
+UTR_coords_subset.reset_index(drop=True, inplace=True)
 DDX6_coords_subset.sort_values(by='start', ascending=True, inplace=True)
+DDX6_coords_subset.reset_index(drop=True, inplace=True)
 print(UTR_coords_subset.head())
 print(len(UTR_coords_subset.index))
 print(DDX6_coords_subset.head())
@@ -36,6 +39,7 @@ print(len(DDX6_coords_subset.index))
 overlapping_intervals = bf.overlap(UTR_coords_subset, DDX6_coords_subset, how='inner', suffixes=('_1','_2'))
 overlapping_intervals = overlapping_intervals.copy()
 overlapping_intervals.sort_values(by='start_1', ascending=True, inplace=True)
+overlapping_intervals.reset_index(drop=True, inplace=True)
 #print the length of one of the columns- make into numpy array
 print(overlapping_intervals.head())
 print(len(overlapping_intervals.index))
@@ -60,38 +64,49 @@ DDX6_overlapping_intervals = DDX6_overlapping_intervals.copy()
 UTR_overlapping_intervals = UTR_overlapping_intervals.copy()
 DDX6_overlapping_intervals.rename({'chrom_2': 'chrom', 'start_2': 'start', 'end_2': 'end'}, axis=1, inplace=True)
 UTR_overlapping_intervals.rename({'chrom_1': 'chrom', 'start_1': 'start', 'end_1': 'end'}, axis=1, inplace=True)
+DDX6_overlapping_intervals.reset_index(drop=True, inplace=True)
 print(DDX6_overlapping_intervals.head())
 print(len(DDX6_overlapping_intervals.index))
+UTR_overlapping_intervals.reset_index(drop=True, inplace=True)
 print(UTR_overlapping_intervals.head())
 print(len(UTR_overlapping_intervals.index))
 #done! Seems to be 3201 3'UTR binding sites
 #export this and look for Limk1 binding sites too- 74122298-74122353 and 74122308-74122367
 
-def get_additional_columns(row):
-    coords = (row['chrom'], row['start'], row['end'])
-    matching_row = DDX6_coords[
-        (DDX6_coords['chrom'] == coords[0]) &
-        (DDX6_coords['start'] == coords[1]) &
-        (DDX6_coords['end'] == coords[2])
-    ]
-    if not matching_row.empty:
-        strand = matching_row['strand'].values[0]
-        confidence_score = matching_row['confidence_score'].values[0]
-        sample_or_tissue_used = matching_row['sample_or_tissue_used'].values[0]
+def get_additional_columns(row, DDX6_coords):
+    #Ensure DDX6_coords has the correct index
+    DDX6_coords = DDX6_coords.set_index(['chrom', 'start', 'end'])
+    # Create a tuple for the index
+    coords_index = (row['chrom'], row['start'], row['end'])
+
+    # Try to locate the matching row using the index
+    try:
+        matching_row = DDX6_coords.loc[coords_index]
+        strand = matching_row['strand']
+        confidence_score = matching_row['confidence_score']
+        sample_or_tissue_used = matching_row['sample_or_tissue_used']
         additional_values = {
             'strand': strand,
             'confidence_score': confidence_score,
             'sample_or_tissue_used': sample_or_tissue_used
         }
         return additional_values
-    else:
+    except KeyError:
+        # If the coords_index is not found in DDX6_coords
         return None
 
+
 # Apply get_additional_columns to overlapping_intervals
-additional_values_df = DDX6_overlapping_intervals.apply(get_additional_columns, axis=1)
-DDX6_overlapping_intervals[['strand', 'confidence_score', 'sample_or_tissue_used']] = additional_values_df.apply(pd.Series)
+additional_values_df = DDX6_overlapping_intervals.apply(get_additional_columns, axis=1, args=(DDX6_coords,))
+
+# Convert the dictionaries in additional_values_df to a DataFrame
+additional_values_df = additional_values_df.apply(pd.Series)
+
+# Join the new columns to the original DDX6_overlapping_intervals DataFrame
+DDX6_overlapping_intervals = DDX6_overlapping_intervals.join(additional_values_df)
 print(DDX6_overlapping_intervals.head())
 print(len(DDX6_overlapping_intervals.index))
+print(DDX6_overlapping_intervals.columns)
 
 #it works! Now need to figure out how to get gene/transcript names from the coordinates
 #The easiest way to do this might be to take the identifier value in the original UTR database.

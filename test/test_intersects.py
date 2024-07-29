@@ -37,8 +37,7 @@ import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from intersects import get_additional_columns
-
+from intersects import get_additional_columns, get_GENCODE_ID
 
 class TestGetAdditionalColumns(unittest.TestCase):
     def setUp(self):
@@ -47,27 +46,31 @@ class TestGetAdditionalColumns(unittest.TestCase):
             'chrom': ['chr1'],
             'start': [100],
             'end': [200]
-        })
+        }).iloc[0]  # Convert to Series to simulate a row
 
         # Create a mock DDX6_coords DataFrame (replace with your actual data)
         self.DDX6_coords = pd.DataFrame({
             'chrom': ['chr1'],
             'start': [100],
             'end': [200],
+            'peak_id': [60],
             'strand': ['+'],
+            'RBP_name': ['DDX6'],
+            'experiment_method': ['ENCODE'],
+            'sample_or_tissue_used': ['K562'],
+            'accession_of_raw_data': ['encode2'],
             'confidence_score': [60.5],
-            'sample_or_tissue_used': ['K562']
-        })
+        })#.set_index(['chrom', 'start', 'end'])  # Set the index as in get_additional_columns
 
     def test_matching_row(self):
         # Test when a matching row exists
-        result = get_additional_columns(self.row)
+        result = get_additional_columns(self.row, self.DDX6_coords)
         expected_result = {
             'strand': '+',
             'confidence_score': 60.5,
             'sample_or_tissue_used': 'K562'
         }
-        np.testing.assert_equal(result, expected_result)
+        self.assertEqual(result, expected_result)
 
     def test_no_matching_row(self):
         # Test when no matching row exists
@@ -75,9 +78,49 @@ class TestGetAdditionalColumns(unittest.TestCase):
             'chrom': ['chr2'],
             'start': [300],
             'end': [400]
+        }).iloc[0]  # Convert to Series to simulate a row
+        result = get_additional_columns(non_matching_row, self.DDX6_coords)
+        self.assertIsNone(result)
+
+class TestGetGENCODEID(unittest.TestCase):
+    def setUp(self):
+        # Create a sample DataFrame for testing
+        self.row_matching = pd.Series({
+            'chrom': 'chr1',
+            'start': 100,
+            'end': 200
         })
-        result = get_additional_columns(non_matching_row)
+
+        self.row_non_matching = pd.Series({
+            'chrom': 'chr2',
+            'start': 300,
+            'end': 400
+        })
+
+        # Create a mock UTR_coords DataFrame (replace with your actual data)
+        self.UTR_coords = pd.DataFrame({
+            'chrom': ['chr1', 'chr3'],
+            'start': [100, 500],
+            'end': [200, 600],
+            'GENCODE_ID': ['TEST1', 'TEST2']
+        }).set_index(['chrom', 'start', 'end'])
+
+    def test_matching_row(self):
+        # Test when a matching row exists
+        result = get_GENCODE_ID(self.row_matching, self.UTR_coords)
+        expected_result = 'UTR1'
+        self.assertEqual(result, expected_result)
+
+    def test_no_matching_row(self):
+        # Test when no matching row exists
+        result = get_GENCODE_ID(self.row_non_matching, self.UTR_coords)
         self.assertIsNone(result)
 
 if __name__ == '__main__':
     unittest.main()
+
+#the above works. 
+#struggled to use the same indexing method in GENCODE_ID as for get_additional_columns as the
+#UTR_coords dataset seems to be too big- results in the process being killed, which indicates there
+#isn't enough memory.
+#May need to separate out GENCODE_ID and additional_columns

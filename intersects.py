@@ -6,10 +6,16 @@ import numpy as np
 
 UTR_coords = pd.read_csv('3UTR.csv', header = None, sep = '\t')
 #Now give columns names. First three columns comprise coords- give same header names as for DDX6 binding site table.
+#IMPORTANT NOTE: might need to incorporate strandedness. Create separate tables for positive and minus coords. Might make
+#code a bit quicker to split data anyway.
 UTR_coords.columns = ["chrom", "start", "end", "identifier", "unknown", "strand"]
 #create a new identifier column with useful values (i.e. only the GENCODE transcript identifier)
 UTR_coords['GENCODE_ID'] = UTR_coords['identifier'].str.split('_').str[0]
 print(UTR_coords.head())
+#export at this point to check Limk1 UTR coords are present
+#UTR_coords.to_csv('UTR_coords.csv', index=True)
+#Confirmed Limk1 UTR coords are present at this time point
+
 #We only want the first three columns.
 UTR_coords_subset = UTR_coords[["chrom", "start", "end"]]
 #The first three columns are named as such so that the dframe is compatible with bioframe
@@ -43,9 +49,10 @@ overlapping_intervals.reset_index(drop=True, inplace=True)
 #print the length of one of the columns- make into numpy array
 print(overlapping_intervals.head())
 print(len(overlapping_intervals.index))
+#overlapping_intervals.to_csv('overlapping_intervals.csv', index=True)
 #export this and check for Limk1 binding coordinates (control)- 74122298-74122353 and 74122308-74122367
+#The LIMK1 coordinates ARE present at this point.
 #_1 = UTR coords; _2 = DDX6_coords. Should only return coords in both dframes where there is overlap.
-#Contents of overlapping_intervals seems consistent. However, it looks like the row number changes every time. Not sure what this means.
 
 #Now need to append additional important info to the overlapping_intervals dframe, including 'sample_or_tissue_used',
 #'confidence_score', 'strand' (dependent on _2 values); and gene name.
@@ -55,7 +62,8 @@ print(len(overlapping_intervals.index))
 #columns correspond to 3'UTR coordinates from across the genome. Still need to retain first three columns for additional
 #data filtering.
 
-overlapping_intervals = overlapping_intervals.drop_duplicates(subset=['chrom_2', 'start_2', 'end_2'], keep=False)
+#overlapping_intervals = overlapping_intervals.drop_duplicates(subset=['chrom_2', 'start_2', 'end_2'], keep=False)
+#this is where limk1 is lost- do NOT drop duplicates just yet. Retain overlapping_intervals.csv for future reference.
 DDX6_overlapping_intervals = overlapping_intervals.filter(regex='_2')
 UTR_overlapping_intervals = overlapping_intervals.filter(regex='_1')
 

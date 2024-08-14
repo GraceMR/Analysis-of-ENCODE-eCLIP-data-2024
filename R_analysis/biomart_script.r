@@ -25,7 +25,7 @@ res
 #now need to join the data from res (external_gene_id, external_gene_name, and description) to the data in df- match according to transcript_id
 #When merging the dataframes, make sure they have matching column names
 
-#res2 <- res$external_gene_name
+res2 <- res$external_gene_name
 #write.csv(res2, "data/gene_list.csv")
 
 df2 <- merge(df, res, by = "ensembl_transcript_id")
@@ -33,10 +33,13 @@ df2 <- merge(df, res, by = "ensembl_transcript_id")
 #order by start coordinate, re-order columns, and drop 'X'
 
 library(dplyr)
-df2 <- arrange(df2, start)
+df2 <- arrange(df2, X3UTR_start)
 df2$ensembl_gene_id <- as.factor(df2$ensembl_gene_id)
 df2 <- relocate(df2, ensembl_gene_id, .before = X)
+#drop unneeded columns
+df2 = subset(df2, select = -c(X))
 
 #export df2 as .csv
+#might be easiest to retain index throughout- will make it easier to merge in final_script.py.
 
 write.csv(df2,"output/overlapping_intervals_gene_names.csv", row.names = FALSE)

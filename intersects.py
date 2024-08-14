@@ -19,15 +19,16 @@ print(UTR_coords.head())
 #Confirmed Limk1 UTR coords are present at this time point
 
 #We only want the first three columns.
-UTR_coords_subset = UTR_coords[["chrom", "start", "end"]]
+UTR_coords_subset = UTR_coords[["chrom", "start", "end", "GENCODE_ID"]]
 #The first three columns are named as such so that the dframe is compatible with bioframe
 print(UTR_coords_subset.head())
 
 #Now want the same info from the list of DDX6 binding sites.
 DDX6_coords = pd.read_csv('output/DDX6_binding_coords.csv', header = 'infer' , sep = ',')
 DDX6_coords.reset_index(drop=True, inplace=True)
+DDX6_coords['unique_id'] = DDX6_coords.index
 #Again, we only want the first three columns.
-DDX6_coords_subset = DDX6_coords[["chrom", "start", "end"]]
+DDX6_coords_subset = DDX6_coords[["chrom", "start", "end", "unique_id"]]
 print(DDX6_coords_subset.head())
 #Now that we have our two lists of genomic coordinates, we need to identify areas of overlap.
 
@@ -72,15 +73,15 @@ UTR_overlapping_intervals = overlapping_intervals.filter(regex='_1')
 #try re-naming the columns
 DDX6_overlapping_intervals = DDX6_overlapping_intervals.copy()
 UTR_overlapping_intervals = UTR_overlapping_intervals.copy()
-DDX6_overlapping_intervals.rename({'chrom_2': 'chrom', 'start_2': 'start', 'end_2': 'end'}, axis=1, inplace=True)
-UTR_overlapping_intervals.rename({'chrom_1': 'chrom', 'start_1': 'start', 'end_1': 'end'}, axis=1, inplace=True)
+DDX6_overlapping_intervals.rename({'chrom_2': 'chrom', 'start_2': 'start', 'end_2': 'end', 'unique_id_2': 'unique_id'}, axis=1, inplace=True)
+UTR_overlapping_intervals.rename({'chrom_1': 'chrom', 'start_1': 'start', 'end_1': 'end', 'GENCODE_ID_1': 'GENCODE_ID'}, axis=1, inplace=True)
 DDX6_overlapping_intervals.reset_index(drop=True, inplace=True)
 print(DDX6_overlapping_intervals.head())
 print(len(DDX6_overlapping_intervals.index))
 UTR_overlapping_intervals.reset_index(drop=True, inplace=True)
 print(UTR_overlapping_intervals.head())
 print(len(UTR_overlapping_intervals.index))
-#done! Seems to be 39,024 3'UTR binding sites
+#done! Seems to be 22,602 3'UTR binding sites
 #confirmed limk1 3'UTR binding sites are present in both DDX6_overlapping_intervals and UTR_overlapping_intervals
 
 ##def get_additional_columns(row, DDX6_coords):
@@ -125,59 +126,30 @@ def process_with_sqlite(df, DDX6_coords):
     SELECT df.*, DDX6_coords.strand, DDX6_coords.confidence_score, DDX6_coords.sample_or_tissue_used
     FROM df
     LEFT JOIN DDX6_coords
-    ON df.chrom = DDX6_coords.chrom AND df.start = DDX6_coords.start AND df.end = DDX6_coords.end
+    ON df.chrom = DDX6_coords.chrom AND df.start = DDX6_coords.start AND df.end = DDX6_coords.end AND df.unique_id = DDX6_coords.unique_id
     """
     result = pd.read_sql_query(query, conn)
     conn.close()
     return result
 
 DDX6_3UTR_binding_sites = process_with_sqlite(DDX6_overlapping_intervals, DDX6_coords)
+DDX6_3UTR_binding_sites.drop(columns=['unique_id'], inplace=True)
 print(DDX6_3UTR_binding_sites.head())
 print(len(DDX6_3UTR_binding_sites.index))
 
-#it works! Now need to figure out how to get gene/transcript names from the coordinates
-#The easiest way to do this might be to take the identifier value in the original UTR database.
-#need to remove any value after '_' in the identifier- anything after this is superfluous- DONE
-#now need to make a new function that does the same as get_additional_columns, but with UTR_coords
+#combined table
+DDX6_3UTR_binding_sites.rename({'chrom': 'DDX6_chrom', 'start': 'DDX6_start', 'end': 'DDX6_end'}, axis=1, inplace=True)
+UTR_overlapping_intervals.rename({'chrom': '3UTR_chrom', 'start': '3UTR_start', 'end': '3UTR_end'}, axis=1, inplace=True)
+DDX6_3UTR_binding_sites = DDX6_3UTR_binding_sites.reset_index()
+UTR_overlapping_intervals = UTR_overlapping_intervals.reset_index()
+final_table = pd.merge(DDX6_3UTR_binding_sites, UTR_overlapping_intervals, on='index')
+final_table = final_table.drop(columns=['index'])
+print(final_table.head())
+print(len(final_table.index))
 
-#def get_GENCODE_ID (row):
-    ##coords = (row['chrom'], row['start'], row['end'])
-    ##matching_row = UTR_coords[
-        ##(UTR_coords['chrom'] == coords[0]) &
-        ##(UTR_coords['start'] == coords[1]) &
-        ##(UTR_coords['end'] == coords[2])
-    ##]
-    ##if not matching_row.empty:
-        ##GENCODE_ID = matching_row['GENCODE_ID'].values[0]
-        ##return GENCODE_ID
-    ##else:
-        ##return None
-
-##gencode_values_df = UTR_overlapping_intervals.apply(get_GENCODE_ID, axis=1)
-##UTR_overlapping_intervals['GENCODE_ID'] = gencode_values_df.apply(pd.Series)
-##print(UTR_overlapping_intervals.head())
-
-def get_GENCODE_ID_with_sqlite(df, UTR_coords):
-    conn = sqlite3.connect(':memory:')
-    df.to_sql('df', conn, index=False)
-    UTR_coords.to_sql('UTR_coords', conn, index=False)
-
-    query = """
-    SELECT df.*, UTR_coords.GENCODE_ID
-    FROM df
-    LEFT JOIN UTR_coords
-    ON df.chrom = UTR_coords.chrom AND df.start = UTR_coords.start AND df.end = UTR_coords.end
-    """
-    result = pd.read_sql_query(query, conn)
-    conn.close()
-    return result
-
-UTR_gencode_ids = get_GENCODE_ID_with_sqlite(UTR_overlapping_intervals, UTR_coords)
-print(UTR_gencode_ids)
-print(UTR_gencode_ids.head())
-print(len(UTR_gencode_ids.index))
-#DDX6_overlapping_intervals.to_csv('DDX6_overlapping_intervals.csv', index=True)
-#UTR_overlapping_intervals.to_csv('UTR_overlapping_intervals.csv', index=True)
+DDX6_3UTR_binding_sites.to_csv('DDX6_3UTR_binding_sites.csv', index=True)
+UTR_overlapping_intervals.to_csv('UTR_overlapping_intervals.csv', index=True)
+final_table.to_csv('final_table.csv', index=True)
 
 ####USING BIOMART TO CONVERT GENCODE/ENSEMBL IDS TO GENE NAMES
 #Easiest to accomplish this in R using the Bioconductor package Biomart; used UTR_overlapping_intervals.

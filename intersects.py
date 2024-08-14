@@ -5,7 +5,8 @@ import bioframe as bf
 import numpy as np
 import sqlite3
 
-UTR_coords = pd.read_csv('3UTR.csv', header = None, sep = '\t')
+#UTR dataframe currently includes all exons per transcript; this is because non-coding genes are being included. Need to modify this.
+UTR_coords = pd.read_csv('3UTR_coding_only.csv', header = None, sep = '\t')
 #Now give columns names. First three columns comprise coords- give same header names as for DDX6 binding site table.
 #IMPORTANT NOTE: might need to incorporate strandedness. Create separate tables for positive and minus coords. Might make
 #code a bit quicker to split data anyway.
@@ -119,10 +120,6 @@ def process_with_sqlite(df, DDX6_coords):
     conn = sqlite3.connect(':memory:')
     df.to_sql('df', conn, index=False)
     DDX6_coords.to_sql('DDX6_coords', conn, index=False)
-
-    # Verify the schema of the tables
-    print(pd.read_sql_query("PRAGMA table_info(df);", conn))
-    print(pd.read_sql_query("PRAGMA table_info(DDX6_coords);", conn))
 
     query = """
     SELECT df.*, DDX6_coords.strand, DDX6_coords.confidence_score, DDX6_coords.sample_or_tissue_used

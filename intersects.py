@@ -144,11 +144,12 @@ DDX6_3UTR_binding_sites = DDX6_3UTR_binding_sites.reset_index()
 UTR_overlapping_intervals = UTR_overlapping_intervals.reset_index()
 final_table = pd.merge(DDX6_3UTR_binding_sites, UTR_overlapping_intervals, on='index')
 final_table = final_table.drop(columns=['index'])
+final_table = final_table.rename_axis('X')
 print(final_table.head())
 print(len(final_table.index))
 
-DDX6_3UTR_binding_sites.to_csv('DDX6_3UTR_binding_sites.csv', index=True)
-UTR_overlapping_intervals.to_csv('UTR_overlapping_intervals.csv', index=True)
+#DDX6_3UTR_binding_sites.to_csv('DDX6_3UTR_binding_sites.csv', index=True)
+#UTR_overlapping_intervals.to_csv('UTR_overlapping_intervals.csv', index=True)
 final_table.to_csv('final_table.csv', index=True)
 
 ####USING BIOMART TO CONVERT GENCODE/ENSEMBL IDS TO GENE NAMES

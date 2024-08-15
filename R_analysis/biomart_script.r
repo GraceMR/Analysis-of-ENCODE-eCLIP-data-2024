@@ -37,7 +37,7 @@ df2 <- arrange(df2, X3UTR_start)
 df2$ensembl_gene_id <- as.factor(df2$ensembl_gene_id)
 df2 <- relocate(df2, ensembl_gene_id, .before = X)
 #drop unneeded columns
-df2 = subset(df2, select = -c(X))
+df2 = subset(df2, select = -c(index))
 
 #export df2 as .csv
 #might be easiest to retain index throughout- will make it easier to merge in final_script.py.

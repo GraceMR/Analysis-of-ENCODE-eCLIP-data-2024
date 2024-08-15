@@ -1,4 +1,4 @@
-"ensembl_transcript_id","ensembl_gene_id","index","X3UTR_chrom","X3UTR_start","X3UTR_end","external_gene_name","description"
+"ensembl_transcript_id","ensembl_gene_id","X","X3UTR_chrom","X3UTR_start","X3UTR_end","external_gene_name","description"
 "ENST00000611875","ENSG00000103148",1,"chr16",85385,86704,"NPRL3","NPR3 like, GATOR1 complex subunit [Source:HGNC Symbol;Acc:HGNC:14124]"
 "ENST00000611875","ENSG00000103148",0,"chr16",85385,86704,"NPRL3","NPR3 like, GATOR1 complex subunit [Source:HGNC Symbol;Acc:HGNC:14124]"
 "ENST00000325147","ENSG00000177951",3,"chr11",202923,205469,"BET1L","Bet1 golgi vesicular membrane trafficking protein like [Source:HGNC Symbol;Acc:HGNC:19348]"

@@ -8,7 +8,7 @@ library("AnnotationDbi")
 library(org.Hs.eg.db)
 library(ggplot2)
 
-df <- read.csv("data/DDX6_3UTR_binding_sites.csv", header = TRUE)
+df <- read.csv("data/DDX6_3UTR_binding_sites_and_transcript_info.csv", header = TRUE)
 DDX6_genes <- df$external_gene_name
 DDX6_genes <- unique(DDX6_genes)
 

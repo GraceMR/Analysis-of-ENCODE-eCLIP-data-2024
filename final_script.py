@@ -24,7 +24,9 @@ merged_df = merged_df.drop('X', axis=1)
     #'3UTR_end', 'ensembl_transcript_id', 'ensembl_gene_id', 'external_gene_name', 'description', 'strand', 'confidence_score', 'sample_or_tissue_used']]
 
 print(merged_df.head())
+print(merged_df.columns.tolist())
+merged_df = merged_df.drop(columns=['X3UTR_chrom', 'X3UTR_start', 'X3UTR_end', 'GENCODE_ID'])
 
 #export as .csv
-#merged_df.to_csv('DDX6_3UTR_binding_sites.csv', index=False)
+merged_df.to_csv('DDX6_3UTR_binding_sites_and_transcript_info.csv', index=False)
 #DONE

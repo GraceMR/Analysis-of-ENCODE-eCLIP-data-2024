@@ -1,16 +1,4 @@
 # Producing a table of DDX6 binding sites located within 3'UTRs across the transcriptome 
-## Assessment specifications: 
-_'You should take your own code or relevant software as a starting point, and modify or extend it so that it:_
-
-_- is a github repository, with issues + pull requests that fully document the development process_
-
-_- has unit testing with a good test coverage_
-
-_- is pip installable_
-
-_- is fully documented, e.g. with a README file and a "Read the Docs" website_
-
-_- uses continuous integration (e.g. Github Actions) for automatic testing and documentation generation'_
 
 ## Background
 ### Argonaute Phosphorylation and the RNA-Induced Silencing Complex (RISC)
